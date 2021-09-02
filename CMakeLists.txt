@@ -1,18 +1,34 @@
 cmake_minimum_required(VERSION 3.20)
 project(test_glove)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
-add_executable(test_glove main.cpp)
+if(DEFINED ENV{CINDER_LIB_PATH})
+    cmake_path(SET CINDER_PATH "$ENV{CINDER_LIB_PATH}" )
+    message(STATUS " Cinder located at: $ENV{CINDER_LIB_PATH}")
+else()
+    message(ERROR " environment variable CINDER_LIB_PATH not set")
+endif()
+
+cmake_path(SET APP_PATH "${CMAKE_CURRENT_SOURCE_DIR}" )
+
+include( "${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake" )
+
+ci_make_app(
+        APP_NAME    "test_glove"
+        CINDER_PATH ${CINDER_PATH}
+        SOURCES     ${APP_PATH}/src/DataCaptureApp.cpp
+        INCLUDES    ${APP_PATH}/SenseGloveAPI/incl ${APP_PATH}/includes
+        #RESOURCES   ${APP_PATH}/
+)
 
 if (UNIX)
-    target_link_directories(test_glove PUBLIC lib/linux/Release)
+    target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/linux/Release)
 endif()
 
 if (WIN32)
-    target_link_directories(test_glove PUBLIC lib/win/Release)
+    target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/win/Release)
 endif()
 
-target_include_directories(test_glove PUBLIC incl)
+target_include_directories(test_glove PUBLIC SenseGloveAPI/incl)
 target_link_libraries(test_glove SGCoreCpp)
-

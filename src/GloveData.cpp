@@ -1,3 +1,8 @@
+//
+// Created by orange on 2/9/21.
+//
+
+#include "../includes/GloveData.h"
 /*
 A console application demonstrating the intended use of a SenseGlove interface.
 Used to compile the programs in the SGCoreCpp/test folder.
@@ -14,6 +19,7 @@ Used to compile the programs in the SGCoreCpp/test folder.
 
 /// <summary> Replace "static void BasicTest()" with int main() to compile as a console application. </summary>
 //static void BasicTest()
+/*
 int main()
 {
     std::cout << "Testing " << SGCore::Library::Version() << std::endl;
@@ -110,5 +116,5 @@ int main()
     std::cout << "=======================================" << std::endl;
     std::cout << "Press any key to exit." << std::endl;
     getchar(); //system("pause");
-}
+}*/
 
