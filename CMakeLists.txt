@@ -10,6 +10,16 @@ else()
     message(ERROR " environment variable CINDER_LIB_PATH not set")
 endif()
 
+if (UNIX)
+    set( CINDER_TARGET "linux")
+    message(STATUS " Linux detected")
+elseif (WIN32)
+    set( CINDER_TARGET "msw")
+    message(STATUS " Windows detected")
+else ()
+    message(ERROR " OS not supported")
+endif()
+
 cmake_path(SET APP_PATH "${CMAKE_CURRENT_SOURCE_DIR}" )
 
 include( "${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake" )
@@ -32,3 +42,6 @@ endif()
 
 target_include_directories(test_glove PUBLIC SenseGloveAPI/incl)
 target_link_libraries(test_glove SGCoreCpp)
+
+set_property(TARGET test_glove PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
