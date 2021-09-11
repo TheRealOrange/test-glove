@@ -27,16 +27,14 @@ include( "${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake" )
 ci_make_app(
         APP_NAME    "test_glove"
         CINDER_PATH ${CINDER_PATH}
-        SOURCES     ${APP_PATH}/src/DataCaptureApp.cpp
+        SOURCES     ${APP_PATH}/src/DataCaptureApp.cpp ${APP_PATH}/src/GloveData.cpp
         INCLUDES    ${APP_PATH}/SenseGloveAPI/incl ${APP_PATH}/includes
         #RESOURCES   ${APP_PATH}/
 )
 
 if (UNIX)
     target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/linux/Release)
-endif()
-
-if (WIN32)
+elseif (WIN32)
     target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/win/Release)
 endif()
 

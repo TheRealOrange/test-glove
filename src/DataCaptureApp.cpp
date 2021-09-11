@@ -8,12 +8,7 @@ using namespace ci;
 using namespace ci::app;
 using namespace std;
 
-void DataCaptureApp::setup()
-{
-    mDrawDebug = false;
-    mDrawInfo = false;
-    mMasterGain = 84;
-
+void DataCaptureApp::setup() {
     setupGraphics();
 
     ImGui::Initialize();
@@ -46,5 +41,6 @@ void DataCaptureApp::drawInfo() {
 
 
 CINDER_APP( DataCaptureApp, RendererGl( RendererGl::Options().msaa( 8 ) ), []( App::Settings *settings ) {
-    settings->setWindowSize( 1200, 800 );
+    settings->setWindowSize(1200, 800);
+    settings->setFrameRate(60.0f);
 } )

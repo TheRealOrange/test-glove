@@ -17,6 +17,8 @@
 
 #include "cinder/audio/Utilities.h"
 
+#include "GloveData.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -32,10 +34,6 @@ private:
     void drawBackground();
     void drawDebug();
     void drawInfo();
-
-    bool					mDrawDebug, mDrawInfo;
-    float					mFps;
-    float					mMasterGain;
 };
 
 
