@@ -29,12 +29,12 @@ void DataCaptureApp::setup()
     mPinky2 = gl::Batch::create(geom::Cube().size(FINGERW-0.1, FINGERH-0.1, LENGTH2), shader);
     mPinky3 = gl::Batch::create(geom::Cube().size(FINGERW-0.2, FINGERH-0.2, LENGTH3), shader);
 
-
 }
 
 
 void DataCaptureApp::update()
 {
+    AppBase::update();
     mRotation *= rotate( toRadians( 0.2f ), normalize( vec3( 0, 1, 0 ) ) );
 }
 
@@ -49,6 +49,8 @@ void DataCaptureApp::draw()
 
     gl::ScopedModelMatrix modelScope;
     gl::multModelMatrix( mRotation );
+
+    AppBase::draw();
 
     // gl::drawCoordinateFrame(10.0);
     gl::translate(0, 0, -4.5);
@@ -116,4 +118,7 @@ void DataCaptureApp::draw()
 
 }
 
-CINDER_APP( DataCaptureApp, RendererGl( RendererGl::Options().msaa( 4 ) ) )
+CINDER_APP( DataCaptureApp, RendererGl( RendererGl::Options().msaa( 8 ) ), []( App::Settings *settings ) {
+    settings->setWindowSize(1200, 800);
+    settings->setFrameRate(60.0f);
+} )
