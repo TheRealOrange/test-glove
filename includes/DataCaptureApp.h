@@ -30,11 +30,11 @@ public:
     void draw() override;
 
     glm::vec3 handPos = glm::vec3();
-    double jointAngles[5][5] = {{0.0, 0.0, 0.0, 0.0, 0.0},
-                             {0.0, 0.0, 0.0, 90.0, 90.0},
+    double jointAngles[5][5] = {{0.0, 0.0, 10.0, 20.0, 10.0},
+                             {60.0, 10.0, 0.0, 120.0, 60.0},
                              {0.0, 0.0, 0.0, 0.0, 0.0},
-                             {0.0, 0.0, 0.0, 90.0, 90.0},
-                             {0.0, 0.0, 0.0, 90.0, 90.0}};
+                             {60.0, -10.0, 0.0, 120.0, 60.0},
+                             {60.0, -20.0, 0.0, 120.0, 60.0}};
     // thumb    cmc mcp < > dip
     // index    cmc mcp pip dip
     // middle   cmc mcp pip dip
@@ -57,6 +57,7 @@ private:
     gl::BatchRef            mPalm;
     gl::BatchRef            mThumb1;
     gl::BatchRef            mThumb2;
+    gl::BatchRef            mThumb3;
     gl::BatchRef            mIndex1;
     gl::BatchRef            mIndex2;
     gl::BatchRef            mIndex3;
@@ -71,7 +72,8 @@ private:
     gl::BatchRef            mPinky3;
 
     float THUMB1 = 4.0;
-    float THUMB2 = 3.0;
+    float THUMB2 = 4.0;
+    float THUMB3 = 3.0;
     float LENGTH1 = 4.0;
     float LENGTH2 = 4.0;
     float LENGTH3 = 3.0;
