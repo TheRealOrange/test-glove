@@ -71,6 +71,8 @@ private:
     gl::BatchRef            mPinky2;
     gl::BatchRef            mPinky3;
 
+    GloveData glove;
+
     float THUMB1 = 4.0;
     float THUMB2 = 4.0;
     float THUMB3 = 3.0;

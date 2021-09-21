@@ -30,13 +30,23 @@ void DataCaptureApp::setup()
     mPinky2 = gl::Batch::create(geom::Cube().size(FINGERW-0.1, FINGERH-0.1, LENGTH2), shader);
     mPinky3 = gl::Batch::create(geom::Cube().size(FINGERW-0.2, FINGERH-0.2, LENGTH3), shader);
 
+    glove.calibrateRight();
+
 }
 
 
 void DataCaptureApp::update()
 {
     AppBase::update();
-    // mRotation *= rotate( toRadians( 0.2f ), normalize( vec3( 0, 1, 0 ) ) );
+    SGCore::HandPose pose;
+    glove.getRightHandPose(pose);
+    for (int i = 1; i < 5; i++) {
+        jointAngles[i][0] = pose.handAngles[i][0].y*360.0f/(2.0f*3.1415f); // up- down+
+        jointAngles[i][1] = pose.handAngles[i][0].z*360.0f/(2.0f*3.1415f); // right- left+
+        jointAngles[i][3] = pose.handAngles[i][1].y*360.0f/(2.0f*3.1415f);
+        jointAngles[i][4] = pose.handAngles[i][2].y*360.0f/(2.0f*3.1415f);
+    }
+    mRotation *= rotate( toRadians( 0.2f ), normalize( vec3( 0, 1, 0 ) ) );
 }
 
 void DataCaptureApp::draw()
