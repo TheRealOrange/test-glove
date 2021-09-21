@@ -32,14 +32,24 @@ ci_make_app(
         #RESOURCES   ${APP_PATH}/
 )
 
+add_executable(test src/test.cpp src/GloveData.cpp)
+target_include_directories(test PUBLIC includes/)
+
 if (UNIX)
     target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/linux/Release)
+    target_link_directories(test PUBLIC SenseGloveAPI/lib/linux/Release)
 elseif (WIN32)
     target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/win/Release)
+    target_link_directories(test PUBLIC SenseGloveAPI/lib/linux/Release)
 endif()
 
 target_include_directories(test_glove PUBLIC SenseGloveAPI/incl)
+target_include_directories(test PUBLIC SenseGloveAPI/incl)
 target_link_libraries(test_glove SGCoreCpp)
+target_link_libraries(test SGCoreCpp)
 
 set_property(TARGET test_glove PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+
+

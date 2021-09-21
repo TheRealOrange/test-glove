@@ -32,7 +32,7 @@ public:
     glm::vec3 handPos = glm::vec3();
     double jointAngles[5][5] = {{0.0, 0.0, 0.0, 0.0, 0.0},
                              {0.0, 0.0, 0.0, 90.0, 90.0},
-                             {0.0, 0.0, 0.0, 0.0, 0.0},
+                             {0.0, 0.0, 0.0, 90.0, 90.0},
                              {0.0, 0.0, 0.0, 90.0, 90.0},
                              {0.0, 0.0, 0.0, 90.0, 90.0}};
     // thumb    cmc mcp < > dip
@@ -69,6 +69,8 @@ private:
     gl::BatchRef            mPinky1;
     gl::BatchRef            mPinky2;
     gl::BatchRef            mPinky3;
+
+    GloveData glove;
 
     float THUMB1 = 4.0;
     float THUMB2 = 3.0;

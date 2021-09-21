@@ -10,15 +10,20 @@
 
 class GloveData {
 private:
-    SGCore::SG::SenseGlove *m_rightGlove = nullptr;
-    SGCore::SG::SenseGlove *m_leftGlove = nullptr;
+    SGCore::SG::SenseGlove m_rightGlove;
+    SGCore::SG::SenseGlove m_leftGlove;
 
-    SGCore::HandProfile *m_leftProfile = nullptr;
-    SGCore::HandProfile *m_rightProfile = nullptr;
+    bool hasRight = false, hasLeft = false;
+    bool calibRight = false, calibLeft = false;
+
+    SGCore::HandProfile m_leftProfile;
+    SGCore::HandProfile m_rightProfile;
+
+    SGCore::SG::SG_GlovePose pose;
 
     SGCore::HandProfile calibration(SGCore::SG::SenseGlove *glove);
     SGCore::SG::SG_GlovePose getPose(SGCore::SG::SenseGlove *glove);
-    SGCore::HandPose getHandPose(SGCore::SG::SenseGlove *glove, SGCore::SG::SG_GlovePose *glovePose, SGCore::HandProfile *profile);
+    void getHandPose(SGCore::SG::SenseGlove *glove, SGCore::HandProfile *profile, SGCore::HandPose &handpose);
     std::vector<SGCore::Kinematics::Vect3D> getTipPositions(SGCore::SG::SenseGlove *glove, SGCore::SG::SG_GlovePose *glovePose, SGCore::HandProfile *profile);
     void printGloveInfo(SGCore::SG::SenseGlove *glove);
 
@@ -35,8 +40,10 @@ public:
     bool isCalibratedRight();
     bool isCalibratedLeft();
 
-    SGCore::HandPose getRightHandPose();
-    SGCore::HandPose getLeftHandPose();
+    void getRightHandPose(SGCore::HandPose &handpose);
+    void getLeftHandPose(SGCore::HandPose &handpose);
+
+    std::vector<SGCore::Kinematics::Vect3D> getRightHandTipPositions();
 };
 
 

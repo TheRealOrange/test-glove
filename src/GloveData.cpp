@@ -17,56 +17,47 @@ Used to compile the programs in the SGCoreCpp/test folder.
 #include "DeviceList.h" // Access devices and communication state
 #include "SenseGlove.h" // SenseGlove interface through which we access data.
 
-/// <summary> Replace "static void BasicTest()" with int main() to compile as a console application. </summary>
-//static void BasicTest()
-
 GloveData::GloveData(SGCore::HandProfile *profileLeft, SGCore::HandProfile *profileRight) {
-    std::vector<SGCore::SG::SenseGlove> glovesConnected;
+    SGCore::SG::SenseGlove glove1;
     if (!SGCore::DeviceList::SenseCommRunning())
         throw std::runtime_error("Sense Comm not running.");
-    glovesConnected = SGCore::SG::SenseGlove::GetSenseGloves(true);
-    if (glovesConnected.empty())
+    if (!SGCore::SG::SenseGlove::GetSenseGlove(glove1))
         throw std::runtime_error("No Sense Gloves Detected!");
     else {
-        if (glovesConnected[0].IsRight()) {
-            m_rightGlove = &glovesConnected[0];
-            if (glovesConnected.size() > 1) m_leftGlove = &glovesConnected[1];
-        } else {
-            m_leftGlove = &glovesConnected[0];
-            if (glovesConnected.size() > 1) m_rightGlove = &glovesConnected[1];
-        }
+        if (SGCore::SG::SenseGlove::GetSenseGlove(false, m_leftGlove)) hasLeft = true;
+        if (SGCore::SG::SenseGlove::GetSenseGlove(true, m_rightGlove)) hasRight = true;
     }
     if (profileLeft != nullptr)
-        m_leftProfile = profileLeft;
+        m_leftProfile = *profileLeft;
     if (profileRight != nullptr)
-        m_rightProfile = profileRight;
+        m_rightProfile = *profileRight;
 
-    if (hasRightGlove()) printGloveInfo(m_leftGlove);
-    if (hasLeftGlove()) printGloveInfo(m_leftGlove);
+    if (hasRightGlove()) printGloveInfo(&m_leftGlove);
+    if (hasLeftGlove()) printGloveInfo(&m_leftGlove);
 }
 
 void GloveData::calibrateLeft() {
     if (hasLeftGlove()) {
-        SGCore::HandProfile profile = calibration(m_leftGlove);
-        m_leftProfile = &profile;
+        calibLeft = true;
+        m_leftProfile = calibration(&m_leftGlove);
     } else
         throw std::runtime_error("No Left Glove Connected!");
 }
 
 void GloveData::calibrateRight() {
     if (hasRightGlove()) {
-        SGCore::HandProfile profile = calibration(m_rightGlove);
-        m_rightProfile = &profile;
+        calibRight = true;
+        m_rightProfile = calibration(&m_rightGlove);
     } else
         throw std::runtime_error("No Right Glove Connected!");
 }
 
 bool GloveData::hasRightGlove() {
-    return m_rightGlove != nullptr;
+    return hasRight;
 }
 
 bool GloveData::hasLeftGlove() {
-    return m_leftGlove != nullptr;
+    return hasLeft;
 }
 
 SGCore::HandProfile GloveData::calibration(SGCore::SG::SenseGlove *glove) {
@@ -132,11 +123,11 @@ SGCore::HandProfile GloveData::calibration(SGCore::SG::SenseGlove *glove) {
 }
 
 bool GloveData::isCalibratedLeft() {
-    return m_leftProfile != nullptr;
+    return calibLeft;
 }
 
 bool GloveData::isCalibratedRight() {
-    return m_rightProfile != nullptr;
+    return calibRight;
 }
 
 SGCore::SG::SG_GlovePose GloveData::getPose(SGCore::SG::SenseGlove *glove) {
@@ -148,16 +139,13 @@ SGCore::SG::SG_GlovePose GloveData::getPose(SGCore::SG::SenseGlove *glove) {
         throw std::runtime_error("Failed to get glove pose.");
 }
 
-SGCore::HandPose GloveData::getHandPose(SGCore::SG::SenseGlove *glove, SGCore::SG::SG_GlovePose *glovePose, SGCore::HandProfile *profile) {
+void GloveData::getHandPose(SGCore::SG::SenseGlove *glove, SGCore::HandProfile *profile, SGCore::HandPose &handpose) {
     //As an example, lets calculate fingertip positions.
 
     //If we wish to calculate hand variables, we need a "hand profile" to tell the Sense Glove our hand lengths
     SGCore::Kinematics::BasicHandModel handModel = SGCore::Kinematics::BasicHandModel::Default(glove->IsRight()); //create a default profile, either left or right.
     //HandPose Example
-    SGCore::HandPose handPose;
-    if (glove->GetHandPose(handModel, *profile, handPose)) {
-        return handPose;
-    } else
+    if (!glove->GetHandPose(handModel, *profile, handpose))
         throw std::runtime_error("Failed to Get Hand Pose");
 
 }
@@ -176,16 +164,23 @@ GloveData::getTipPositions(SGCore::SG::SenseGlove *glove, SGCore::SG::SG_GlovePo
     return glovePose->CalculateFingerTips(profile->senseGloveProfile); //calculates fingertip position
 }
 
-SGCore::HandPose GloveData::getRightHandPose() {
+void GloveData::getRightHandPose(SGCore::HandPose &handpose) {
     if (!hasRightGlove()) throw std::runtime_error("No Right Glove Connected!");
     if (!isCalibratedRight()) throw std::runtime_error("Right Glove Not Calibrated!");
-    SGCore::SG::SG_GlovePose pose = getPose(m_rightGlove);
-    return getHandPose(m_rightGlove, &pose, m_rightProfile);
+    pose = getPose(&m_rightGlove);
+    getHandPose(&m_rightGlove, &m_rightProfile, handpose);
 }
 
-SGCore::HandPose GloveData::getLeftHandPose() {
+void GloveData::getLeftHandPose(SGCore::HandPose &handpose) {
     if (!hasLeftGlove()) throw std::runtime_error("No Left Glove Connected!");
     if (!isCalibratedLeft()) throw std::runtime_error("Left Glove Not Calibrated!");
-    SGCore::SG::SG_GlovePose pose = getPose(m_leftGlove);
-    return getHandPose(m_leftGlove, &pose, m_leftProfile);
+    pose = getPose(&m_leftGlove);
+    getHandPose(&m_leftGlove, &m_leftProfile, handpose);
+}
+
+std::vector<SGCore::Kinematics::Vect3D> GloveData::getRightHandTipPositions() {
+    if (!hasRightGlove()) throw std::runtime_error("No Right Glove Connected!");
+    if (!isCalibratedRight()) throw std::runtime_error("Right Glove Not Calibrated!");
+    pose = getPose(&m_rightGlove);
+    return getTipPositions(&m_rightGlove, &pose, &m_rightProfile);
 }
