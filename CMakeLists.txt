@@ -1,7 +1,46 @@
 cmake_minimum_required(VERSION 3.20)
 project(test_glove)
-
 set(CMAKE_CXX_STANDARD 17)
+
+# Make project require C++11
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+if(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+elseif(COMPILER_SUPPORTS_CXX0X)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+endif()
+
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+if(WIN32)
+    include_directories("C:\\Users\\Mel\\CLionProjects\\test-glove\\third-party\\glfw\\include")
+    include_directories("C:\\Users\\Mel\\CLionProjects\\test-glove\\third-party\\GL")
+    add_subdirectory("C:\\Users\\Mel\\CLionProjects\\test-glove\\third-party\\glfw")
+endif()
+
+# Simple non robust way to find the librealsense library
+if(WIN32)
+    if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
+        set(LIBRARY_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\lib\\x64")          # TODO: Update this variable to correct path - folder where realsense2.lib is found
+        set(DLL_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\bin\\x64")              # TODO: Update this variable to correct path - folder where realsense2.dll is found
+    else()
+        set(LIBRARY_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\lib\\x86")          # TODO: Update this variable to correct path - folder where realsense2.lib is found
+        set(DLL_DIR "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\bin\\x86")              # TODO: Update this variable to correct path - folder where realsense2.dll is found
+    endif()
+    set(PROJECT_BINARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/\$\(Configuration\)")                # TODO: Update this variable to correct path - folder to which your project will compile
+    set(ADDITIONAL_INCLUDE_DIRS "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\include")   # TODO: Update this variable to correct path - folder where librealsense2 folder is found
+endif()
+
+find_library(REALSENSE2_FOUND realsense2 HINTS ${LIBRARY_DIR} REQUIRED)
+if(NOT REALSENSE2_FOUND)
+    SET(REALSENSE2_FOUND "realsense2")
+    message(WARN "Failed to find_library(realsense2)")
+endif()
 
 if(DEFINED ENV{CINDER_LIB_PATH})
     cmake_path(SET CINDER_PATH "$ENV{CINDER_LIB_PATH}" )
@@ -23,33 +62,35 @@ endif()
 cmake_path(SET APP_PATH "${CMAKE_CURRENT_SOURCE_DIR}" )
 
 include( "${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake" )
-
 ci_make_app(
         APP_NAME    "test_glove"
         CINDER_PATH ${CINDER_PATH}
-        SOURCES     ${APP_PATH}/src/DataCaptureApp.cpp ${APP_PATH}/src/GloveData.cpp
+        SOURCES     ${APP_PATH}/src/DataCaptureApp.cpp
         INCLUDES    ${APP_PATH}/SenseGloveAPI/incl ${APP_PATH}/includes
         #RESOURCES   ${APP_PATH}/
 )
-
-add_executable(test src/test.cpp src/GloveData.cpp)
-target_include_directories(test PUBLIC includes/)
-
 if (UNIX)
     target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/linux/Release)
-    target_link_directories(test PUBLIC SenseGloveAPI/lib/linux/Release)
-elseif (WIN32)
+endif()
+if (WIN32)
     target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/win/Release)
-    target_link_directories(test PUBLIC SenseGloveAPI/lib/linux/Release)
 endif()
 
 target_include_directories(test_glove PUBLIC SenseGloveAPI/incl)
-target_include_directories(test PUBLIC SenseGloveAPI/incl)
 target_link_libraries(test_glove SGCoreCpp)
-target_link_libraries(test SGCoreCpp)
 
 set_property(TARGET test_glove PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
+find_package(OpenGL REQUIRED)
 
+# realsense executable
+set(HEADER_FILES includes/RealSense.h third-party/glfw/include/GLFW/glfw3.h third-party/GL/glu.h)
+add_executable(realsense src/RealSense.cpp ${HEADER_FILES})
+include_directories(realsense ${ADDITIONAL_INCLUDE_DIRS})
+target_link_libraries(realsense ${REALSENSE2_FOUND})
+target_link_libraries(realsense glfw)
+target_link_libraries(realsense OpenGL::GL)
+target_link_libraries(realsense glu32)
+set_target_properties (realsense PROPERTIES FOLDER Examples)
 
