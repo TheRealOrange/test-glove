@@ -17,7 +17,7 @@
 
 #include "cinder/audio/Utilities.h"
 
-#include "GloveData.h"
+// #include "GloveData.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -30,11 +30,11 @@ public:
     void draw() override;
 
     glm::vec3 handPos = glm::vec3();
-    double jointAngles[5][5] = {{0.0, 0.0, 10.0, 20.0, 10.0},
-                             {60.0, 10.0, 0.0, 120.0, 60.0},
-                             {0.0, 0.0, 0.0, 0.0, 0.0},
-                             {60.0, -10.0, 0.0, 120.0, 60.0},
-                             {60.0, -20.0, 0.0, 120.0, 60.0}};
+    double jointAngles[5][5] = {{-20.0, 20.0, 10.0, 10.0, 10.0},
+                             {0.0,  5.0, 20.0, 20.0, 20.0},
+                             {0.0,  0.0,  20.0, 20.0, 20.0},
+                             {0.0, -5.0, 20.0, 20.0, 20.0},
+                             {0.0, -10.0, 20.0, 20.0, 20.0}};
     // thumb    cmc mcp < > dip
     // index    cmc mcp pip dip
     // middle   cmc mcp pip dip
@@ -71,7 +71,7 @@ private:
     gl::BatchRef            mPinky2;
     gl::BatchRef            mPinky3;
 
-    GloveData glove;
+    // GloveData glove;
 
     float THUMB1 = 4.0;
     float THUMB2 = 4.0;
