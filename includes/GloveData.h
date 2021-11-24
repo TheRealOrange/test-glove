@@ -27,7 +27,7 @@ private:
     std::vector<SGCore::Kinematics::Vect3D> getTipPositions(SGCore::SG::SenseGlove *glove, SGCore::SG::SG_GlovePose *glovePose, SGCore::HandProfile *profile);
     void printGloveInfo(SGCore::SG::SenseGlove *glove);
     void saveProfile(std::string file, SGCore::HandProfile *profile);
-    bool loadProfile(std::string file, SGCore::HandProfile *profile);
+    bool loadProfile(std::string file, SGCore::HandProfile &profile);
 
 public:
     GloveData(SGCore::HandProfile *profileLeft, SGCore::HandProfile *profileRight);

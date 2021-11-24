@@ -4,15 +4,15 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 # Make project require C++11
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-endif()
+#include(CheckCXXCompilerFlag)
+#CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+#CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+#if(COMPILER_SUPPORTS_CXX11)
+#    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+#elseif(COMPILER_SUPPORTS_CXX0X)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+#endif()
 
 
 
@@ -20,11 +20,9 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-if(WIN32)
-    include_directories("third-party/glfw/include")
-    include_directories("third-party/GL")
-    add_subdirectory("third-party/glfw")
-endif()
+include_directories("third-party/glfw/include")
+include_directories("third-party/GL")
+add_subdirectory("third-party/glfw")
 
 # Simple non robust way to find the librealsense library
 if(WIN32)
@@ -76,8 +74,7 @@ ci_make_app(
 
 if (UNIX)
     target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/linux/Release)
-endif()
-if (WIN32)
+elseif (WIN32)
     target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/win/Release)
 endif()
 
@@ -105,12 +102,12 @@ set_target_properties (realsense PROPERTIES FOLDER Examples)
 #set(BOOST_ROOT C://Program Files//PCL 1.12.0//3rdParty//Boost)
 
 #set(Boost_USE_STATIC_LIBS ON)
-set(Boost_INCLUDE_DIR "C:/Program Files/PCL 1.12.0/3rdParty/Boost/include/boost-1_77")
+#set(Boost_INCLUDE_DIR "C:/Program Files/PCL 1.12.0/3rdParty/Boost/include/boost-1_77")
 
-set(VTK_DIR "C://Program Files//PCL 1.12.0//3rdParty//VTK//lib//cmake//vtk-9.0")
+#set(VTK_DIR "C://Program Files//PCL 1.12.0//3rdParty//VTK//lib//cmake//vtk-9.0")
 #set(VTK_DIR "C://Program Files//PCL 1.12.0//3rdParty//VTK//lib//cmake")
 
-find_package(PCL 1.3 REQUIRED COMPONENTS common io)
+find_package(PCL 1.3 REQUIRED COMPONENTS common io visualization filters)
 message("PCL_LIBRARIES - ${PCL_LIBRARIES}")
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})

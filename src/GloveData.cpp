@@ -34,7 +34,7 @@ GloveData::GloveData(SGCore::HandProfile *profileLeft, SGCore::HandProfile *prof
     if (profileRight != nullptr)
         m_rightProfile = *profileRight;
 
-    if (hasRightGlove()) printGloveInfo(&m_leftGlove);
+    if (hasRightGlove()) printGloveInfo(&m_rightGlove);
     if (hasLeftGlove()) printGloveInfo(&m_leftGlove);
 }
 
@@ -203,22 +203,33 @@ void GloveData::saveProfile(std::string file, SGCore::HandProfile *profile) {
 }
 
 bool GloveData::loadLeftProfile(std::string file) {
+    if (loadProfile(file, m_leftProfile)) {
+        calibLeft = true;
+        return true;
+    }
     return false;
 }
 
 bool GloveData::loadRightProfile(std::string file) {
+    std::cout<< m_rightProfile.Serialize() <<std::endl;
+    if (loadProfile(file, m_rightProfile)) {
+        calibRight = true;
+        std::cout<< m_rightProfile.Serialize() <<std::endl;
+        return true;
+    }
     return false;
 }
 
-bool GloveData::loadProfile(std::string file, SGCore::HandProfile *profile) {
+bool GloveData::loadProfile(std::string file, SGCore::HandProfile &profile) {
     struct stat buf;
     if (stat(file.c_str(), &buf) != -1) {
         std::ifstream outfile;
         outfile.open(file);
-        std::string profile;
-        outfile >> profile;
+        std::string profile_str;
+        outfile >> profile_str;
         outfile.close();
-        SGCore::HandProfile loadedProfile = SGCore::HandProfile::Deserialize(profile);
+        profile = SGCore::HandProfile::Deserialize(profile_str);
+        return true;
     }
     return false;
 }

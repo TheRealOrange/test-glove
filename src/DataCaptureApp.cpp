@@ -30,7 +30,10 @@ void DataCaptureApp::setup()
     mPinky2 = gl::Batch::create(geom::Cube().size(FINGERW-0.1, FINGERH-0.1, LENGTH2), shader);
     mPinky3 = gl::Batch::create(geom::Cube().size(FINGERW-0.2, FINGERH-0.2, LENGTH3), shader);
 
-    glove.calibrateRight();
+    if (!glove.loadRightProfile("profile")) {
+        glove.calibrateRight();
+        glove.saveRightProfile("profile");
+    }
 
 }
 

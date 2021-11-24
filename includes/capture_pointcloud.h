@@ -24,12 +24,16 @@
 #include <pcl/point_types.h>
 #include <pcl/filters/passthrough.h>
 #include <pcl/common/common_headers.h>
+#include <pcl/common/transforms.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/console/parse.h>
 #include <boost/thread/thread.hpp>
 #include <pcl/io/io.h>
 #include <pcl/visualization/cloud_viewer.h>
+#include <pcl/filters/conditional_removal.h> //and the other usuals
+
+#include "json.hpp"
 
 // #include <windows.h>
 

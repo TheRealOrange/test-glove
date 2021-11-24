@@ -67,9 +67,9 @@ cloud_pointer PCL_Conversion(const rs2::points& points, const rs2::video_frame& 
         RGB_Color = RGB_Texture(color, Texture_Coord[i]);
 
         // Mapping Color (BGR due to Camera Model)
-        cloud->points[i].r = get<2>(RGB_Color); // Reference tuple<2>
+        cloud->points[i].r = get<0>(RGB_Color); // Reference tuple<2>
         cloud->points[i].g = get<1>(RGB_Color); // Reference tuple<1>
-        cloud->points[i].b = get<0>(RGB_Color); // Reference tuple<0>
+        cloud->points[i].b = get<2>(RGB_Color); // Reference tuple<0>
 
     }
 
@@ -79,7 +79,13 @@ cloud_pointer PCL_Conversion(const rs2::points& points, const rs2::video_frame& 
 
 int main() try
 {
-
+    // read a JSON file
+    std::ifstream infile("config.json");
+    nlohmann::json config;
+    infile >> config;
+    double h_lt, s_lt, v_lt, h_gt, s_gt, v_gt;
+    h_gt = config["h_gt"];
+    h_lt = config["h_lt"];
     //======================
     // Variable Declaration
     //======================
@@ -166,6 +172,51 @@ int main() try
         Cloud_Filter.setFilterLimits (0.0, 1.0);      // Set accepted interval values
         Cloud_Filter.filter (*newCloud);              // Filtered Cloud Outputted
 
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr newerCloud (new pcl::PointCloud<pcl::PointXYZRGB>);
+//
+//        pcl::PassThrough<pcl::PointXYZRGB> Cloud_Filter1; // Create the filtering object
+//        Cloud_Filter.setInputCloud (newCloud);           // Input generated cloud to filter
+//        Cloud_Filter.setFilterFieldName ("r");        // Set field name to Z-coordinate
+//        Cloud_Filter.setFilterLimits (100, 255.0);      // Set accepted interval values
+//        Cloud_Filter.filter (*newerCloud);              // Filtered Cloud Outputted
+
+        pcl::ConditionalRemoval<pcl::PointXYZRGB> color_filter;
+
+        pcl::PackedHSIComparison<pcl::PointXYZRGB>::Ptr
+                hue_lt(new pcl::PackedHSIComparison<pcl::PointXYZRGB>("h", pcl::ComparisonOps::LT, h_lt));
+        pcl::PackedHSIComparison<pcl::PointXYZRGB>::Ptr
+                hue_gt(new pcl::PackedHSIComparison<pcl::PointXYZRGB>("h", pcl::ComparisonOps::GT, h_gt));
+//        pcl::PackedHSIComparison<pcl::PointXYZRGB>::Ptr
+//                sat_lt(new pcl::PackedHSIComparison<pcl::PointXYZRGB>("s", pcl::ComparisonOps::LT, s_lt));
+//        pcl::PackedHSIComparison<pcl::PointXYZRGB>::Ptr
+//                sat_gt(new pcl::PackedHSIComparison<pcl::PointXYZRGB>("s", pcl::ComparisonOps::GT, s_gt));
+//        pcl::PackedHSIComparison<pcl::PointXYZRGB>::Ptr
+//                val_lt(new pcl::PackedHSIComparison<pcl::PointXYZRGB>("i", pcl::ComparisonOps::LT, v_lt));
+//        pcl::PackedHSIComparison<pcl::PointXYZRGB>::Ptr
+//                val_gt(new pcl::PackedHSIComparison<pcl::PointXYZRGB>("i", pcl::ComparisonOps::GT, v_gt));
+        pcl::ConditionAnd<pcl::PointXYZRGB>::Ptr color_cond (new pcl::ConditionAnd<pcl::PointXYZRGB> ());
+        color_cond->addComparison (hue_lt);
+        color_cond->addComparison (hue_gt);
+//        color_cond->addComparison (sat_lt);
+//        color_cond->addComparison (sat_gt);
+//        color_cond->addComparison (val_lt);
+//        color_cond->addComparison (val_gt);
+
+        // Build the filter
+        color_filter.setInputCloud(newCloud);
+        color_filter.setCondition (color_cond);
+        color_filter.filter(*newerCloud);
+
+
+        // pointcloud source cloud
+        // pointcloud output newCloud
+
+        Eigen::Matrix4f flippy_trans = Eigen::Matrix4f::Identity();
+        flippy_trans (1,1) = -1; // (row, col)
+        // std::cout << flippy_trans << std::endl;
+        pcl::PointCloud<pcl::PointXYZRGB>::Ptr newererCloud (new pcl::PointCloud<pcl::PointXYZRGB> ());
+        pcl::transformPointCloud( *newerCloud, *newererCloud, flippy_trans);
+
         cloudFile = "Captured_Frame" + to_string(i) + ".pcd";
 
         //==============================
@@ -173,7 +224,7 @@ int main() try
         //==============================
         // Take Cloud Data and write to .PCD File Format
         cout << "Generating PCD Point Cloud File... " << endl;
-        pcl::io::savePCDFileASCII(cloudFile, *cloud); // Input cloud to be saved to .pcd
+        pcl::io::savePCDFileASCII(cloudFile, *newererCloud); // Input cloud to be saved to .pcd
         cout << cloudFile << " successfully generated. " << endl;
 
         //Load generated PCD file for viewing
@@ -216,8 +267,8 @@ void Load_PCDFile(void)
     // Set background of viewer to black
     viewer->setBackgroundColor (0, 0, 0);
     // Add generated point cloud and identify with string "Cloud"
-    // viewer->addPointCloud<pcl::PointXYZRGB> (cloudView, "Cloud");
-    viewer->addPointCloud(cloudView, "Cloud");
+    viewer->addPointCloud<pcl::PointXYZRGB> (cloudView, "Cloud");
+    // viewer->addPointCloud(cloudView, "Cloud");
     // Default size for rendered points
     viewer->setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "Cloud");
     // Viewer Properties
