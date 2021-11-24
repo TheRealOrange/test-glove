@@ -26,6 +26,8 @@ private:
     void getHandPose(SGCore::SG::SenseGlove *glove, SGCore::HandProfile *profile, SGCore::HandPose &handpose);
     std::vector<SGCore::Kinematics::Vect3D> getTipPositions(SGCore::SG::SenseGlove *glove, SGCore::SG::SG_GlovePose *glovePose, SGCore::HandProfile *profile);
     void printGloveInfo(SGCore::SG::SenseGlove *glove);
+    void saveProfile(std::string file, SGCore::HandProfile *profile);
+    bool loadProfile(std::string file, SGCore::HandProfile *profile);
 
 public:
     GloveData(SGCore::HandProfile *profileLeft, SGCore::HandProfile *profileRight);
@@ -33,6 +35,12 @@ public:
 
     void calibrateLeft();
     void calibrateRight();
+
+    void saveRightProfile(std::string file);
+    void saveLeftProfile(std::string file);
+
+    bool loadRightProfile(std::string file);
+    bool loadLeftProfile(std::string file);
 
     bool hasRightGlove();
     bool hasLeftGlove();

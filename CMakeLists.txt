@@ -18,9 +18,9 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 if(WIN32)
-    include_directories("C:\\Users\\Mel\\CLionProjects\\test-glove\\third-party\\glfw\\include")
-    include_directories("C:\\Users\\Mel\\CLionProjects\\test-glove\\third-party\\GL")
-    add_subdirectory("C:\\Users\\Mel\\CLionProjects\\test-glove\\third-party\\glfw")
+    include_directories("third-party/glfw/include")
+    include_directories("third-party/GL")
+    add_subdirectory("third-party/glfw")
 endif()
 
 # Simple non robust way to find the librealsense library
@@ -34,12 +34,13 @@ if(WIN32)
     endif()
     set(PROJECT_BINARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/\$\(Configuration\)")                # TODO: Update this variable to correct path - folder to which your project will compile
     set(ADDITIONAL_INCLUDE_DIRS "C:\\Program Files (x86)\\Intel RealSense SDK 2.0\\include")   # TODO: Update this variable to correct path - folder where librealsense2 folder is found
-endif()
-
-find_library(REALSENSE2_FOUND realsense2 HINTS ${LIBRARY_DIR} REQUIRED)
-if(NOT REALSENSE2_FOUND)
-    SET(REALSENSE2_FOUND "realsense2")
-    message(WARN "Failed to find_library(realsense2)")
+    find_library(REALSENSE2_FOUND realsense2 HINTS ${LIBRARY_DIR} REQUIRED)
+    if(NOT REALSENSE2_FOUND)
+        SET(REALSENSE2_FOUND "realsense2")
+        message(WARN "Failed to find_library(realsense2)")
+    endif()
+elseif(UNIX)
+    find_package(realsense2 REQUIRED)
 endif()
 
 if(DEFINED ENV{CINDER_LIB_PATH})
@@ -65,7 +66,7 @@ include( "${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake" )
 ci_make_app(
         APP_NAME    "test_glove"
         CINDER_PATH ${CINDER_PATH}
-        SOURCES     ${APP_PATH}/src/DataCaptureApp.cpp
+        SOURCES     ${APP_PATH}/src/DataCaptureApp.cpp ${APP_PATH}/src/GloveData.cpp
         INCLUDES    ${APP_PATH}/SenseGloveAPI/incl ${APP_PATH}/includes
         #RESOURCES   ${APP_PATH}/
 )
@@ -90,7 +91,6 @@ add_executable(realsense src/RealSense.cpp ${HEADER_FILES})
 include_directories(realsense ${ADDITIONAL_INCLUDE_DIRS})
 target_link_libraries(realsense ${REALSENSE2_FOUND})
 target_link_libraries(realsense glfw)
-target_link_libraries(realsense OpenGL::GL)
-target_link_libraries(realsense glu32)
+target_link_libraries(realsense OpenGL::GL OpenGL::GLU)
 set_target_properties (realsense PROPERTIES FOLDER Examples)
 

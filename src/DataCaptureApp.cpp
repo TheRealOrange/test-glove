@@ -39,14 +39,29 @@ void DataCaptureApp::update()
 {
     AppBase::update();
     SGCore::HandPose pose;
-    glove.getRightHandPose(pose);
-    for (int i = 1; i < 5; i++) {
-        jointAngles[i][0] = pose.handAngles[i][0].y*360.0f/(2.0f*3.1415f); // up- down+
-        jointAngles[i][1] = pose.handAngles[i][0].z*360.0f/(2.0f*3.1415f); // right- left+
-        jointAngles[i][3] = pose.handAngles[i][1].y*360.0f/(2.0f*3.1415f);
-        jointAngles[i][4] = pose.handAngles[i][2].y*360.0f/(2.0f*3.1415f);
+    try {
+        glove.getRightHandPose(pose);
+        std::cout << "start\n";
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0;j < 3;j++) std::cout << pose.handAngles[i][j].x*360.0f/(2.0f*3.1415f) << ", " << pose.handAngles[i][j].y*360.0f/(2.0f*3.1415f) << ", " << pose.handAngles[i][j].z*360.0f/(2.0f*3.1415f) << std::endl;
+            std::cout<< "\n";
+            jointAngles[i][0] = pose.handAngles[i][0].y*360.0f/(2.0f*3.1415f); // up- down+
+            jointAngles[i][1] = pose.handAngles[i][0].z*360.0f/(2.0f*3.1415f); // right- left+
+            jointAngles[i][3] = pose.handAngles[i][1].y*360.0f/(2.0f*3.1415f);
+            jointAngles[i][4] = pose.handAngles[i][2].y*360.0f/(2.0f*3.1415f);
+        }
+        jointAngles[0][2] = pose.handAngles[0][0].x*360.0f/(2.0f*3.1415f);
+        jointAngles[0][0] = pose.handAngles[0][0].y*360.0f/(2.0f*3.1415f); // up- down+
+        jointAngles[0][1] = pose.handAngles[0][0].z*360.0f/(2.0f*3.1415f); // right- left+
+        jointAngles[0][3] = pose.handAngles[0][1].y*360.0f/(2.0f*3.1415f);
+        jointAngles[0][4] = pose.handAngles[0][2].y*360.0f/(2.0f*3.1415f);
+    } catch (std::exception &e) {
     }
-    mRotation *= rotate( toRadians( 0.2f ), normalize( vec3( 0, 1, 0 ) ) );
+    //std::cout << std::endl;
+    //std::cout << "Calculated Hand Pose: " << std::endl << pose.ToString() << std::endl;
+
+    //std::exit(0);
+    //mRotation *= rotate( toRadians( 0.2f ), normalize( vec3( 0, 1, 0 ) ) );
 }
 
 void DataCaptureApp::draw()
@@ -68,9 +83,9 @@ void DataCaptureApp::draw()
     mPalm->draw();
 
     // thumb offsets
-    double o0 = -14.5; // joint 0 forward/back
+    double o0 = 0; // joint 0 forward/back
     double o1 = 90.0; // joint 0 rotation (0,0,1)
-    double o2 = 14.5; // joint 1 forward/back
+    double o2 = 0; // joint 1 forward/back
     double o3 = 0.0; // joint 1 left/right
     double o4 = 0.0; // joint 2 forward/back
 
@@ -98,10 +113,12 @@ void DataCaptureApp::draw()
 
     gl::translate(-5.0,0,10.0); // move to front of palm
 
+    double index_o0 = 10.0;
+
     gl::translate(3.75, 0, 0); // move to index position
     gl::rotate(jointAngles[1][1] * PI / 180, 0, 1, 0);
     gl::translate(0, -(LENGTH1 / 2.0) * sin(jointAngles[1][0] * PI / 180.0), (LENGTH1 / 2.0) * cos(jointAngles[1][0] * PI / 180.0));
-    gl::rotate(jointAngles[1][0] * PI / 180, 1, 0 ,0);
+    gl::rotate((jointAngles[1][0]+index_o0) * PI / 180, 1, 0 ,0);
     mIndex1->draw();
     gl::translate(0, -(LENGTH2 / 2.0) * sin(jointAngles[1][3] * PI / 180.0), LENGTH1 / 2.0 + (LENGTH2 / 2.0) * cos(jointAngles[1][3] * PI / 180.0));
     gl::rotate(jointAngles[1][3] * PI / 180, 1, 0 ,0);
@@ -115,14 +132,14 @@ void DataCaptureApp::draw()
     gl::translate(0, (LENGTH3 / 2.0) * sin(jointAngles[1][4] * PI / 180.0), -(LENGTH2 / 2.0 + (LENGTH3 / 2.0) * cos(jointAngles[1][4] * PI / 180.0)));
     gl::rotate(-jointAngles[1][3] * PI / 180, 1, 0 ,0);
     gl::translate(0, (LENGTH2 / 2.0) * sin(jointAngles[1][3] * PI / 180.0), -(LENGTH1 / 2.0 + (LENGTH2 / 2.0) * cos(jointAngles[1][3] * PI / 180.0)));
-    gl::rotate(-jointAngles[1][0] * PI / 180, 1, 0 ,0);
+    gl::rotate(-(jointAngles[1][0]+index_o0) * PI / 180, 1, 0 ,0);
     gl::translate(0, (LENGTH1 / 2.0) * sin(jointAngles[1][0] * PI / 180.0), -((LENGTH1 / 2.0) * cos(jointAngles[1][0] * PI / 180.0)));
     gl::rotate(-jointAngles[1][1] * PI / 180, 0, 1, 0);
 
     gl::translate(-2.5, 0, 0);
     gl::rotate(jointAngles[2][1] * PI / 180, 0, 1, 0);
     gl::translate(0, -(LENGTH1 / 2.0) * sin(jointAngles[2][0] * PI / 180.0), (LENGTH1 / 2.0) * cos(jointAngles[2][0] * PI / 180.0));
-    gl::rotate(jointAngles[2][0] * PI / 180, 1, 0 ,0);
+    gl::rotate((jointAngles[2][0]+index_o0) * PI / 180, 1, 0 ,0);
     mMiddle1->draw();
     gl::translate(0, -(LENGTH2 / 2.0) * sin(jointAngles[2][3] * PI / 180.0), LENGTH1 / 2.0 + (LENGTH2 / 2.0) * cos(jointAngles[2][3] * PI / 180.0));
     gl::rotate(jointAngles[2][3] * PI / 180, 1, 0 ,0);
@@ -135,14 +152,14 @@ void DataCaptureApp::draw()
     gl::translate(0, (LENGTH3 / 2.0) * sin(jointAngles[2][4] * PI / 180.0), -(LENGTH2 / 2.0 + (LENGTH3 / 2.0) * cos(jointAngles[2][4] * PI / 180.0)));
     gl::rotate(-jointAngles[2][3] * PI / 180, 1, 0 ,0);
     gl::translate(0, (LENGTH2 / 2.0) * sin(jointAngles[2][3] * PI / 180.0), -(LENGTH1 / 2.0 + (LENGTH2 / 2.0) * cos(jointAngles[2][3] * PI / 180.0)));
-    gl::rotate(-jointAngles[2][0] * PI / 180, 1, 0 ,0);
+    gl::rotate(-(jointAngles[2][0]+index_o0) * PI / 180, 1, 0 ,0);
     gl::translate(0, (LENGTH1 / 2.0) * sin(jointAngles[2][0] * PI / 180.0), -(LENGTH1 / 2.0) * cos(jointAngles[2][0] * PI / 180.0));
     gl::rotate(-jointAngles[2][1] * PI / 180, 0, 1, 0);
 
     gl::translate(-2.5, 0, 0);
     gl::rotate(jointAngles[3][1] * PI / 180, 0, 1, 0);
     gl::translate(0, -(LENGTH1 / 2.0) * sin(jointAngles[3][0] * PI / 180.0), (LENGTH1 / 2.0) * cos(jointAngles[3][0] * PI / 180.0));
-    gl::rotate(jointAngles[3][0] * PI / 180, 1, 0 ,0);
+    gl::rotate((jointAngles[3][0]+index_o0) * PI / 180, 1, 0 ,0);
     mRing1->draw();
     gl::translate(0, -(LENGTH2 / 2.0) * sin(jointAngles[3][3] * PI / 180.0), LENGTH1 / 2.0 + (LENGTH2 / 2.0) * cos(jointAngles[3][3] * PI / 180.0));
     gl::rotate(jointAngles[3][3] * PI / 180, 1, 0 ,0);
@@ -155,14 +172,14 @@ void DataCaptureApp::draw()
     gl::translate(0, (LENGTH3 / 2.0) * sin(jointAngles[3][4] * PI / 180.0), -(LENGTH2 / 2.0 + (LENGTH3 / 2.0) * cos(jointAngles[3][4] * PI / 180.0)));
     gl::rotate(-jointAngles[3][3] * PI / 180, 1, 0 ,0);
     gl::translate(0, (LENGTH2 / 2.0) * sin(jointAngles[3][3] * PI / 180.0), -(LENGTH1 / 2.0 + (LENGTH2 / 2.0) * cos(jointAngles[3][3] * PI / 180.0)));
-    gl::rotate(-jointAngles[3][0] * PI / 180, 1, 0 ,0);
+    gl::rotate(-(jointAngles[3][0]+index_o0) * PI / 180, 1, 0 ,0);
     gl::translate(0, (LENGTH1 / 2.0) * sin(jointAngles[3][0] * PI / 180.0), -(LENGTH1 / 2.0) * cos(jointAngles[3][0] * PI / 180.0));
     gl::rotate(-jointAngles[3][1] * PI / 180, 0, 1, 0);
 
     gl::translate(-2.5, 0, 0);
     gl::rotate(jointAngles[4][1] * PI / 180, 0, 1, 0);
     gl::translate(0, -(LENGTH1 / 2.0) * sin(jointAngles[4][0] * PI / 180.0), (LENGTH1 / 2.0) * cos(jointAngles[4][0] * PI / 180.0));
-    gl::rotate(jointAngles[4][0] * PI / 180, 1, 0 ,0);
+    gl::rotate((jointAngles[4][0]+index_o0) * PI / 180, 1, 0 ,0);
     mPinky1->draw();
     gl::translate(0, -(LENGTH2 / 2.0) * sin(jointAngles[4][3] * PI / 180.0), LENGTH1 / 2.0 + (LENGTH2 / 2.0) * cos(jointAngles[4][3] * PI / 180.0));
     gl::rotate(jointAngles[4][3] * PI / 180, 1, 0 ,0);
@@ -175,7 +192,7 @@ void DataCaptureApp::draw()
     gl::translate(0, (LENGTH3 / 2.0) * sin(jointAngles[4][4] * PI / 180.0), -(LENGTH2 / 2.0 + (LENGTH3 / 2.0) * cos(jointAngles[4][4] * PI / 180.0)));
     gl::rotate(-jointAngles[4][3] * PI / 180, 1, 0 ,0);
     gl::translate(0, (LENGTH2 / 2.0) * sin(jointAngles[4][3] * PI / 180.0), -(LENGTH1 / 2.0 + (LENGTH2 / 2.0) * cos(jointAngles[4][3] * PI / 180.0)));
-    gl::rotate(-jointAngles[4][0] * PI / 180, 1, 0 ,0);
+    gl::rotate(-(jointAngles[4][0]+index_o0) * PI / 180, 1, 0 ,0);
     gl::translate(0, (LENGTH1 / 2.0) * sin(jointAngles[4][0] * PI / 180.0), -(LENGTH1 / 2.0) * cos(jointAngles[4][0] * PI / 180.0));
     gl::rotate(-jointAngles[4][1] * PI / 180, 0, 1, 0);
 
@@ -183,5 +200,5 @@ void DataCaptureApp::draw()
 
 CINDER_APP( DataCaptureApp, RendererGl( RendererGl::Options().msaa( 4 ) ), []( App::Settings *settings ) {
     settings->setWindowSize(1200, 800);
-    settings->setFrameRate(60.0f);
+    settings->setFrameRate(15.0f);
 } )

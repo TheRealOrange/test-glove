@@ -116,7 +116,7 @@ int main(int argc, char * argv[]) try
         float minv = 0;
         for (int i = 0; i < points.size(); i++)
         {
-            /*int u = fmod(tex_coords[i].u, 1) * app.width();
+            int u = fmod(tex_coords[i].u, 1) * app.width();
             int v = fmod(tex_coords[i].v, 1) * app.height();
             if (v >= 0) {
                 int R = int(ptr[v * stride + (3 * u)]);
@@ -138,9 +138,9 @@ int main(int argc, char * argv[]) try
             }
             if (v < minv) {
                 minv = v;
-            }*/
-            glVertex3fv(vertices[i]);
-            glTexCoord2fv(tex_coords[i]);
+            }
+            //glVertex3fv(vertices[i]);
+            //glTexCoord2fv(tex_coords[i]);
         }
         std::cout << app.width() << std::endl;
         std::cout << "maxu=" << maxu << ", maxv=" << maxv << std::endl;

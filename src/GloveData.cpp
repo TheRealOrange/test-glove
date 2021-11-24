@@ -9,6 +9,8 @@ Used to compile the programs in the SGCoreCpp/test folder.
 */
 
 #include <iostream> //Output to console
+#include <fstream>
+#include <sys/stat.h>
 
 #include <thread>  //To pause the main() while vibrating
 #include <chrono>  //To pause the thread for std::chrono::seconds
@@ -184,3 +186,40 @@ std::vector<SGCore::Kinematics::Vect3D> GloveData::getRightHandTipPositions() {
     pose = getPose(&m_rightGlove);
     return getTipPositions(&m_rightGlove, &pose, &m_rightProfile);
 }
+
+void GloveData::saveRightProfile(std::string file) {
+    saveProfile(file, &m_rightProfile);
+}
+
+void GloveData::saveLeftProfile(std::string file) {
+    saveProfile(file, &m_leftProfile);
+}
+
+void GloveData::saveProfile(std::string file, SGCore::HandProfile *profile) {
+    std::ofstream outfile;
+    outfile.open(file);
+    outfile << profile->Serialize();
+    outfile.close();
+}
+
+bool GloveData::loadLeftProfile(std::string file) {
+    return false;
+}
+
+bool GloveData::loadRightProfile(std::string file) {
+    return false;
+}
+
+bool GloveData::loadProfile(std::string file, SGCore::HandProfile *profile) {
+    struct stat buf;
+    if (stat(file.c_str(), &buf) != -1) {
+        std::ifstream outfile;
+        outfile.open(file);
+        std::string profile;
+        outfile >> profile;
+        outfile.close();
+        SGCore::HandProfile loadedProfile = SGCore::HandProfile::Deserialize(profile);
+    }
+    return false;
+}
+

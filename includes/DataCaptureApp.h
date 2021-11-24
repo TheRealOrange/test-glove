@@ -30,11 +30,11 @@ public:
     void draw() override;
 
     glm::vec3 handPos = glm::vec3();
-    double jointAngles[5][5] = {{0.0, 0.0, 10.0, 20.0, 10.0},
-                             {60.0, 10.0, 0.0, 120.0, 60.0},
+    double jointAngles[5][5] = {{0.0, 0.0, 0.0, 0.0, 0.0},
                              {0.0, 0.0, 0.0, 0.0, 0.0},
-                             {60.0, -10.0, 0.0, 120.0, 60.0},
-                             {60.0, -20.0, 0.0, 120.0, 60.0}};
+                             {0.0, 0.0, 0.0, 0.0, 0.0},
+                             {0.0, 0.0, 0.0, 0.0, 0.0},
+                             {0.0, 0.0, 0.0, 0.0, 0.0}};
     // thumb    cmc mcp < > dip
     // index    cmc mcp pip dip
     // middle   cmc mcp pip dip
