@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(test_glove)
 set(CMAKE_CXX_STANDARD 17)
 
+
 # Make project require C++11
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
@@ -12,6 +13,8 @@ if(COMPILER_SUPPORTS_CXX11)
 elseif(COMPILER_SUPPORTS_CXX0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
+
+
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -70,6 +73,7 @@ ci_make_app(
         INCLUDES    ${APP_PATH}/SenseGloveAPI/incl ${APP_PATH}/includes
         #RESOURCES   ${APP_PATH}/
 )
+
 if (UNIX)
     target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/linux/Release)
 endif()
@@ -93,4 +97,40 @@ target_link_libraries(realsense ${REALSENSE2_FOUND})
 target_link_libraries(realsense glfw)
 target_link_libraries(realsense OpenGL::GL OpenGL::GLU)
 set_target_properties (realsense PROPERTIES FOLDER Examples)
+
+#set(PCL_DIR "C:/Users/Mel/vcpkg/buildtrees/pcl/x86-windows-rel")
+#set(Eigen3_DIR "C:/Users/Mel/vcpkg/buildtrees/eigen3/x86-windows-rel")
+
+#set(Boost_DEBUG ON)
+#set(BOOST_ROOT C://Program Files//PCL 1.12.0//3rdParty//Boost)
+
+#set(Boost_USE_STATIC_LIBS ON)
+set(Boost_INCLUDE_DIR "C:/Program Files/PCL 1.12.0/3rdParty/Boost/include/boost-1_77")
+
+set(VTK_DIR "C://Program Files//PCL 1.12.0//3rdParty//VTK//lib//cmake//vtk-9.0")
+#set(VTK_DIR "C://Program Files//PCL 1.12.0//3rdParty//VTK//lib//cmake")
+
+find_package(PCL 1.3 REQUIRED COMPONENTS common io)
+message("PCL_LIBRARIES - ${PCL_LIBRARIES}")
+include_directories(${PCL_INCLUDE_DIRS})
+link_directories(${PCL_LIBRARY_DIRS})
+add_definitions(${PCL_DEFINITIONS})
+
+find_package(FLANN REQUIRED)
+
+set(HEADER_FILES includes/region_growing_rgb_segmentation.h)
+add_executable(asdftesting src/region_growing_rgb_segmentation.cpp)
+
+set(HEADER_FILES includes/capture_pointcloud.h)
+add_executable(cappc src/capture_pointcloud.cpp)
+include_directories(cappc ${ADDITIONAL_INCLUDE_DIRS})
+#include_directories(cappc ${PCL_INCLUDE_DIRS})
+target_link_libraries(cappc ${REALSENSE2_FOUND})
+target_link_libraries(cappc ${PCL_LIBRARIES} )
+
+
+
+
+
+
 
