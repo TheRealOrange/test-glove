@@ -19,6 +19,8 @@
 
 #include "GloveData.h"
 
+#include "capture_pointcloud.h"
+
 using namespace ci;
 using namespace ci::app;
 using namespace std;
@@ -47,6 +49,7 @@ private:
     void drawBackground();
     void drawDebug();
     void drawInfo();
+    void keyDown(KeyEvent event);
 
     bool					mDrawDebug, mDrawInfo;
     float					mFps;
@@ -72,6 +75,9 @@ private:
     gl::BatchRef            mPinky3;
 
     GloveData glove;
+    CapturePointCloud capture;
+
+    int fileCounter = 1;
 
     float THUMB1 = 4.0;
     float THUMB2 = 4.0;

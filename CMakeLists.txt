@@ -67,22 +67,10 @@ include( "${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake" )
 ci_make_app(
         APP_NAME    "test_glove"
         CINDER_PATH ${CINDER_PATH}
-        SOURCES     ${APP_PATH}/src/DataCaptureApp.cpp ${APP_PATH}/src/GloveData.cpp
+        SOURCES     ${APP_PATH}/src/DataCaptureApp.cpp ${APP_PATH}/src/GloveData.cpp ${APP_PATH}/src/capture_pointcloud.cpp
         INCLUDES    ${APP_PATH}/SenseGloveAPI/incl ${APP_PATH}/includes
         #RESOURCES   ${APP_PATH}/
 )
-
-if (UNIX)
-    target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/linux/Release)
-elseif (WIN32)
-    target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/win/Release)
-endif()
-
-target_include_directories(test_glove PUBLIC SenseGloveAPI/incl)
-target_link_libraries(test_glove SGCoreCpp)
-
-set_property(TARGET test_glove PROPERTY
-        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 find_package(OpenGL REQUIRED)
 
@@ -107,7 +95,7 @@ set_target_properties (realsense PROPERTIES FOLDER Examples)
 #set(VTK_DIR "C://Program Files//PCL 1.12.0//3rdParty//VTK//lib//cmake//vtk-9.0")
 #set(VTK_DIR "C://Program Files//PCL 1.12.0//3rdParty//VTK//lib//cmake")
 
-find_package(PCL 1.3 REQUIRED COMPONENTS common io visualization filters)
+find_package(PCL 1.3 REQUIRED COMPONENTS common io visualization filters features)
 message("PCL_LIBRARIES - ${PCL_LIBRARIES}")
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
@@ -115,15 +103,28 @@ add_definitions(${PCL_DEFINITIONS})
 
 find_package(FLANN REQUIRED)
 
-set(HEADER_FILES includes/region_growing_rgb_segmentation.h)
-add_executable(asdftesting src/region_growing_rgb_segmentation.cpp)
+#set(HEADER_FILES includes/region_growing_rgb_segmentation.h)
+#add_executable(asdftesting src/region_growing_rgb_segmentation.cpp)
+
+if (UNIX)
+    target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/linux/Release)
+elseif (WIN32)
+    target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/win/Release)
+endif()
+
+target_include_directories(test_glove PUBLIC SenseGloveAPI/incl)
+target_link_libraries(test_glove SGCoreCpp)
+
+set_property(TARGET test_glove PROPERTY
+        MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 set(HEADER_FILES includes/capture_pointcloud.h)
-add_executable(cappc src/capture_pointcloud.cpp)
-include_directories(cappc ${ADDITIONAL_INCLUDE_DIRS})
-#include_directories(cappc ${PCL_INCLUDE_DIRS})
-target_link_libraries(cappc ${REALSENSE2_FOUND})
-target_link_libraries(cappc ${PCL_LIBRARIES} )
+include_directories(test_glove ${ADDITIONAL_INCLUDE_DIRS})
+#include_directories(test_glove ${PCL_INCLUDE_DIRS})
+target_link_libraries(test_glove ${REALSENSE2_FOUND})
+target_link_libraries(test_glove ${PCL_LIBRARIES} )
+
+
 
 
 

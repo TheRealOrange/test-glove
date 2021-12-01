@@ -44,10 +44,10 @@ void DataCaptureApp::update()
     SGCore::HandPose pose;
     try {
         glove.getRightHandPose(pose);
-        std::cout << "start\n";
+        //std::cout << "start\n";
         for (int i = 0; i < 5; i++) {
-            for (int j = 0;j < 3;j++) std::cout << pose.handAngles[i][j].x*360.0f/(2.0f*3.1415f) << ", " << pose.handAngles[i][j].y*360.0f/(2.0f*3.1415f) << ", " << pose.handAngles[i][j].z*360.0f/(2.0f*3.1415f) << std::endl;
-            std::cout<< "\n";
+            //for (int j = 0;j < 3;j++) std::cout << pose.handAngles[i][j].x*360.0f/(2.0f*3.1415f) << ", " << pose.handAngles[i][j].y*360.0f/(2.0f*3.1415f) << ", " << pose.handAngles[i][j].z*360.0f/(2.0f*3.1415f) << std::endl;
+            //std::cout<< "\n";
             jointAngles[i][0] = pose.handAngles[i][0].y*360.0f/(2.0f*3.1415f); // up- down+
             jointAngles[i][1] = pose.handAngles[i][0].z*360.0f/(2.0f*3.1415f); // right- left+
             jointAngles[i][3] = pose.handAngles[i][1].y*360.0f/(2.0f*3.1415f);
@@ -200,6 +200,22 @@ void DataCaptureApp::draw()
     gl::rotate(-jointAngles[4][1] * PI / 180, 0, 1, 0);
 
 }
+
+void DataCaptureApp::keyDown(KeyEvent event) {
+    AppBase::keyDown(event);
+    if (event.getChar() == 'y') {
+        std::vector<SGCore::Kinematics::Vect3D> positions = glove.getRightHandTipPositions();
+        int counter = 0;
+        std::ofstream myfile;
+        myfile.open ("tipPositions"+to_string(fileCounter)+".csv");
+        for (auto &i : positions) {
+            myfile << counter << "," << i.x << "," << i.y << "," << i.z << "\n";
+        }
+        myfile.close();
+        capture.getFrame();
+    }
+}
+
 
 CINDER_APP( DataCaptureApp, RendererGl( RendererGl::Options().msaa( 4 ) ), []( App::Settings *settings ) {
     settings->setWindowSize(1200, 800);
