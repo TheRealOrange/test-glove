@@ -22,7 +22,9 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 include_directories("third-party/glfw/include")
 include_directories("third-party/GL")
+include_directories("third-party/glfw/include/GLFW")
 add_subdirectory("third-party/glfw")
+
 
 # Simple non robust way to find the librealsense library
 if(WIN32)
@@ -44,6 +46,11 @@ elseif(UNIX)
     find_package(realsense2 REQUIRED)
 endif()
 
+
+# cinder
+get_filename_component( CINDER_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../Cinder" ABSOLUTE )
+get_filename_component( APP_PATH "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE )
+
 if(DEFINED ENV{CINDER_LIB_PATH})
     cmake_path(SET CINDER_PATH "$ENV{CINDER_LIB_PATH}" )
     message(STATUS " Cinder located at: $ENV{CINDER_LIB_PATH}")
@@ -64,15 +71,18 @@ endif()
 cmake_path(SET APP_PATH "${CMAKE_CURRENT_SOURCE_DIR}" )
 
 include( "${CINDER_PATH}/proj/cmake/modules/cinderMakeApp.cmake" )
+# find_package(cinder)
 ci_make_app(
-        APP_NAME    "test_glove"
-        CINDER_PATH ${CINDER_PATH}
-        SOURCES     ${APP_PATH}/src/DataCaptureApp.cpp ${APP_PATH}/src/GloveData.cpp ${APP_PATH}/src/capture_pointcloud.cpp
-        INCLUDES    ${APP_PATH}/SenseGloveAPI/incl ${APP_PATH}/includes
-        #RESOURCES   ${APP_PATH}/
+    APP_NAME    "test_glove"
+    CINDER_PATH ${CINDER_PATH}
+    SOURCES     ${APP_PATH}/src/DataCaptureApp.cpp ${APP_PATH}/src/GloveData.cpp ${APP_PATH}/src/capture_pointcloud.cpp
+    INCLUDES    ${APP_PATH}/SenseGloveAPI/incl ${APP_PATH}/includes
+    #RESOURCES   ${APP_PATH}/
 )
 
 find_package(OpenGL REQUIRED)
+
+find_package(glfw3)
 
 # realsense executable
 set(HEADER_FILES includes/RealSense.h third-party/glfw/include/GLFW/glfw3.h third-party/GL/glu.h)
@@ -83,7 +93,7 @@ target_link_libraries(realsense glfw)
 target_link_libraries(realsense OpenGL::GL OpenGL::GLU)
 set_target_properties (realsense PROPERTIES FOLDER Examples)
 
-#set(PCL_DIR "C:/Users/Mel/vcpkg/buildtrees/pcl/x86-windows-rel")
+# set(PCL_DIR "C:/Users/Mel/vcpkg/buildtrees/pcl/x86-windows-rel")
 #set(Eigen3_DIR "C:/Users/Mel/vcpkg/buildtrees/eigen3/x86-windows-rel")
 
 #set(Boost_DEBUG ON)
@@ -96,6 +106,7 @@ set_target_properties (realsense PROPERTIES FOLDER Examples)
 #set(VTK_DIR "C://Program Files//PCL 1.12.0//3rdParty//VTK//lib//cmake")
 
 find_package(PCL 1.3 REQUIRED COMPONENTS common io visualization filters features)
+# find_package(PCL)
 message("PCL_LIBRARIES - ${PCL_LIBRARIES}")
 include_directories(${PCL_INCLUDE_DIRS})
 link_directories(${PCL_LIBRARY_DIRS})
@@ -106,14 +117,19 @@ find_package(FLANN REQUIRED)
 #set(HEADER_FILES includes/region_growing_rgb_segmentation.h)
 #add_executable(asdftesting src/region_growing_rgb_segmentation.cpp)
 
+message("AAAAAAAAAA")
+
+
 if (UNIX)
     target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/linux/Release)
 elseif (WIN32)
     target_link_directories(test_glove PUBLIC SenseGloveAPI/lib/win/Release)
 endif()
 
+message("AAAAAAAAAA")
+
 target_include_directories(test_glove PUBLIC SenseGloveAPI/incl)
-target_link_libraries(test_glove SGCoreCpp)
+# target_link_libraries(test_glove SGCoreCpp)
 
 set_property(TARGET test_glove PROPERTY
         MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -122,7 +138,7 @@ set(HEADER_FILES includes/capture_pointcloud.h)
 include_directories(test_glove ${ADDITIONAL_INCLUDE_DIRS})
 #include_directories(test_glove ${PCL_INCLUDE_DIRS})
 target_link_libraries(test_glove ${REALSENSE2_FOUND})
-target_link_libraries(test_glove ${PCL_LIBRARIES} )
+# target_link_libraries(test_glove ${PCL_LIBRARIES} )
 
 
 
